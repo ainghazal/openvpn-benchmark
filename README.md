@@ -19,6 +19,16 @@ go build
 sudo setcap 'cap_net_admin=ep' ./openvpn-benchmark
 ```
 
+# simulating packet loss
+
+TODO
+
+```
+sudo tc qdisc add dev enp38s0 root netem loss 10%
+sudo tc qdisc show dev enp38s0
+sudo tc qdisc del dev enp38s0 root netem
+```
+
 
 # reference
 
