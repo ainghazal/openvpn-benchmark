@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os/exec"
@@ -13,19 +14,28 @@ import (
 )
 
 func main() {
+	var disableDCO bool
+
+	flag.BoolVar(&disableDCO, "disable-dco", false, "disable dco module, if loaded")
+	flag.Parse()
+
 	var wg sync.WaitGroup
+
+	vpnargs := []string{}
+	if disableDCO {
+		vpnargs = append(vpnargs, "--disable-dco")
+	}
+	vpnargs = append(vpnargs, []string{
+		"--management", "127.0.0.1", "6061",
+		"--management-hold", "--route-noexec",
+		"--config", "data/client.ovpn"}...)
 
 	go func() {
 		defer wg.Done()
 		wg.Add(1)
-		cmd := exec.Command(
-			"openvpn",
-			// TODO: make dco optional, to be able to benchmark
-			// the kernel module too
-			// "--disable-dco",
-			"--management", "127.0.0.1", "6061",
-			"--management-hold", "--route-noexec",
-			"--config", "data/client.ovpn")
+
+		cmd := exec.Command("openvpn", vpnargs...)
+
 		cmd.SysProcAttr = &unix.SysProcAttr{
 			AmbientCaps: []uintptr{unix.CAP_NET_ADMIN},
 		}
