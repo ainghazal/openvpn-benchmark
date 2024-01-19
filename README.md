@@ -19,16 +19,24 @@ go build
 sudo setcap 'cap_net_admin=ep' ./openvpn-benchmark
 ```
 
-# simulating packet loss
-
-TODO
+# run
 
 ```
-sudo tc qdisc add dev enp38s0 root netem loss 10%
-sudo tc qdisc show dev enp38s0
-sudo tc qdisc del dev enp38s0 root netem
+./openvpn-benchmark -h
+Usage of ./openvpn-benchmark:
+  -count int
+        how many times to run the experiment (default 1)
+  -disable-dco
+        disable dco module, if loaded (ref only)
+  -file string
+        file where to append results (default "results.json")
+  -flavor string
+        what impl to run (minivpn|ref) (default "ref")
+  -iface string
+        interface where to emulate network conditions (default "eth0")
+  -loss int
+        setup a specific packet loss % on the interface
 ```
-
 
 # reference
 

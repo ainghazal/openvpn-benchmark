@@ -40,7 +40,6 @@ func runReference(config *config) {
 			fmt.Println("Error:", err)
 			return
 		}
-		fmt.Println(string(out))
 	}()
 
 	// let's give some time to openvpn to start and wait for us?
@@ -105,5 +104,9 @@ func runReference(config *config) {
 		Elapsed: elapsed.String(),
 	}
 	r, _ := json.Marshal(result)
-	fmt.Println(string(r), ",")
+	fmt.Println(string(r))
+
+	if config.file != "" {
+		appendToFile(config.file, string(r)+",\n")
+	}
 }

@@ -51,6 +51,7 @@ func runMiniVPN(config *config) {
 		go func() {
 			for scanner.Scan() {
 				line := scanner.Text()
+
 				// Process the log line as needed
 				if strings.HasPrefix(line, "Local") {
 					fmt.Println(line)
@@ -59,6 +60,10 @@ func runMiniVPN(config *config) {
 				if strings.HasPrefix(line, "Gateway") {
 					fmt.Println(line)
 					fmt.Println("done!")
+					if config.debug {
+						fmt.Printf("Stderr: %s\n", stderr.String())
+					}
+
 					wg.Done()
 					return
 				}
@@ -87,5 +92,9 @@ func runMiniVPN(config *config) {
 		Elapsed: elapsed.String(),
 	}
 	r, _ := json.Marshal(result)
-	fmt.Println(string(r), ",")
+	fmt.Println(string(r))
+
+	if config.file != "" {
+		appendToFile(config.file, string(r)+",\n")
+	}
 }

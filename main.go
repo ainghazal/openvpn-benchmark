@@ -20,6 +20,8 @@ type config struct {
 	loss       int
 	iface      string
 	count      int
+	file       string
+	debug      bool
 }
 
 type result struct {
@@ -46,11 +48,14 @@ func main() {
 	flag.IntVar(&config.count, "count", 1, "how many times to run the experiment")
 	flag.StringVar(&config.flavor, "flavor", "ref", "what impl to run (minivpn|ref)")
 	flag.StringVar(&config.iface, "iface", "eth0", "interface where to emulate network conditions")
-	flag.BoolVar(&config.disableDCO, "disable-dco", false, "disable dco module, if loaded")
-	flag.IntVar(&config.loss, "loss", 0, "setup a specific packet loss %% on the interface")
+	flag.BoolVar(&config.disableDCO, "disable-dco", false, "disable dco module, if loaded (ref only)")
+	flag.IntVar(&config.loss, "loss", 0, "setup a specific packet loss % on the interface")
+	flag.StringVar(&config.file, "file", "results.json", "file where to append results")
+	flag.BoolVar(&config.debug, "debug", false, "print logs")
 	flag.Parse()
 
 	log.Println("iface:", config.iface)
+	log.Println("file:", config.file)
 
 	defer cleanupNetem(config)
 	setupLoss(config)
