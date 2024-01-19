@@ -7,6 +7,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -25,6 +26,13 @@ type config struct {
 	disableDCO bool
 	loss       int
 	iface      string
+}
+
+type result struct {
+	Time    time.Time
+	Loss    int
+	Flavor  string
+	Elapsed time.Duration
 }
 
 // capCommand runs a command with a specific set of capabilities.
@@ -156,9 +164,14 @@ func runMiniVPN(config *config) {
 	wg.Wait()
 
 	elapsed := time.Since(start)
-	fmt.Println("flavor: minivpn")
-	fmt.Printf("loss: %d%%\n", config.loss)
-	fmt.Println("elapsed:", elapsed)
+	result := result{
+		Time:    time.Now(),
+		Loss:    config.loss,
+		Flavor:  "minivpn",
+		Elapsed: elapsed,
+	}
+	r, _ := json.Marshal(result)
+	fmt.Println(string(r), ",")
 }
 
 // runReference will run the openvpn reference implementation
@@ -247,7 +260,13 @@ func runReference(config *config) {
 
 	finished := <-t
 	elapsed := finished.Sub(start)
-	fmt.Println("flavor: openvpn")
-	fmt.Printf("loss: %d%%\n", config.loss)
-	fmt.Println("elapsed:", elapsed)
+
+	result := result{
+		Time:    time.Now(),
+		Loss:    config.loss,
+		Flavor:  "openvpn",
+		Elapsed: elapsed,
+	}
+	r, _ := json.Marshal(result)
+	fmt.Println(string(r), ",")
 }
