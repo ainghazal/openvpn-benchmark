@@ -24,7 +24,8 @@ func tcNetem(args ...string) {
 
 func setupLoss(config *config) {
 	lossval := fmt.Sprintf("%d%%", config.loss)
-	tcNetem("qdisc", "add", "dev", config.iface, "root", "netem", "loss", lossval)
+	tcNetem("qdisc", "add", "dev", config.iface, "root", "netem", "loss", lossval,
+		"delay", "600ms", "100ms")
 }
 
 func cleanupNetem(config *config) {
