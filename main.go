@@ -71,5 +71,6 @@ func main() {
 			fmt.Printf("bojack openvpn, run wild! go %d!\n", i)
 			runReference(config)
 		}
+		time.Sleep(time.Second * 5)
 	}
 }
