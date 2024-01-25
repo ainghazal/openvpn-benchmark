@@ -7,11 +7,15 @@ import (
 )
 
 // tcNetem runs a tc netem command
-func tcNetem(args ...string) {
+func tcNetem(canFail bool, args ...string) {
 	cmd := capCommand("tc", args...)
 
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
+
+	if canFail {
+		return
+	}
 
 	out, err := cmd.Output()
 	if err != nil {
@@ -24,10 +28,14 @@ func tcNetem(args ...string) {
 
 func setupLoss(config *config) {
 	lossval := fmt.Sprintf("%d%%", config.loss)
-	tcNetem("qdisc", "add", "dev", config.iface, "root", "netem", "loss", lossval,
+	tcNetem(false, "qdisc", "add", "dev", config.iface, "root", "netem", "loss", lossval,
 		"delay", "600ms", "100ms")
 }
 
 func cleanupNetem(config *config) {
-	tcNetem("qdisc", "del", "dev", config.iface, "root", "netem")
+	tcNetem(false, "qdisc", "del", "dev", config.iface, "root", "netem")
+}
+
+func maybeCleanupNetem(config *config) {
+	tcNetem(true, "qdisc", "del", "dev", config.iface, "root", "netem")
 }

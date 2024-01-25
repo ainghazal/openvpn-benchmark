@@ -26,7 +26,7 @@ func runMiniVPN(config *config) {
 	go func() {
 		defer wg.Done()
 
-		cmd := capCommand("./minivpn", "data/client.ovpn")
+		cmd := capCommand("./minivpn", "-skip-route", "-config", "data/client.ovpn")
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 
@@ -53,20 +53,28 @@ func runMiniVPN(config *config) {
 				line := scanner.Text()
 
 				// Process the log line as needed
-				if strings.HasPrefix(line, "Local") {
+				if strings.Contains(line, "initialization sequence completed") {
 					fmt.Println(line)
-					continue
-				}
-				if strings.HasPrefix(line, "Gateway") {
-					fmt.Println(line)
-					fmt.Println("done!")
-					if config.debug {
-						fmt.Printf("Stderr: %s\n", stderr.String())
-					}
-
 					wg.Done()
 					return
 				}
+
+				/*
+					if strings.HasPrefix(line, "Local") {
+						fmt.Println(line)
+						continue
+					}
+					if strings.HasPrefix(line, "Gateway") {
+						fmt.Println(line)
+						fmt.Println("done!")
+						if config.debug {
+							fmt.Printf("Stderr: %s\n", stderr.String())
+						}
+
+						wg.Done()
+						return
+					}
+				*/
 			}
 		}()
 

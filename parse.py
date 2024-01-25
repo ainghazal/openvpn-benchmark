@@ -1,18 +1,21 @@
 import json
-
 import sys
+
+from timelength import TimeLength
+
 
 d = open(sys.argv[1]).read()
 data = json.loads(d)
 
-for row in data:
-    if row['elapsed'].endswith('ms'):
-        n = float(row['elapsed'].strip('ms')) / 1E3
-        row['elapsed'] = n
-        continue
-    if row['elapsed'].endswith('s'):
-        n = float(row['elapsed'].strip('s'))
-        row['elapsed'] = n
-        continue
+d = open(sys.argv[2]).read()
+data = data + json.loads(d)
 
+
+def fix(data):
+    for row in data:
+        t = row['elapsed']
+        length = TimeLength(t)
+        row['elapsed'] = length.to_seconds()
+
+fix(data)
 print(json.dumps(data))

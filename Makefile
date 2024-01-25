@@ -4,4 +4,7 @@ run-management:
 	./openvpn-benchmark
 setcap:
 	sudo setcap 'cap_net_admin=ep' ./openvpn-benchmark
+plot:
+	python parse.py experiment-openvpn-ref.json experiment-minivpn-ref.json | jq > comparison.json
+	R -f plotData.R
 

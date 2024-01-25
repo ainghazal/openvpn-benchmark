@@ -57,6 +57,8 @@ func main() {
 	log.Println("iface:", config.iface)
 	log.Println("file:", config.file)
 
+	maybeCleanupNetem(config)
+
 	defer cleanupNetem(config)
 	setupLoss(config)
 
