@@ -12,3 +12,5 @@ IFACE=enp38s0
 ./openvpn-benchmark -iface $IFACE -loss 20 -count 5 -flavor minivpn -file $EXPERIMENT
 ./openvpn-benchmark -iface $IFACE -loss 25 -count 5 -flavor minivpn -file $EXPERIMENT
 ./openvpn-benchmark -iface $IFACE -loss 30 -count 5 -flavor minivpn -file $EXPERIMENT
+./openvpn-benchmark -iface $IFACE -loss 40 -count 5 -flavor minivpn -file $EXPERIMENT
+./openvpn-benchmark -iface $IFACE -loss 50 -count 5 -flavor minivpn -file $EXPERIMENT

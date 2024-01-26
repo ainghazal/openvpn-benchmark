@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -41,6 +42,15 @@ func capCommand(command string, args ...string) *exec.Cmd {
 	return cmd
 }
 
+func capCommandTimeout(command string, args ...string) (*exec.Cmd, func()) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*TLS_TIMEOUT)
+	cmd := exec.CommandContext(ctx, command, args...)
+	cmd.SysProcAttr = &unix.SysProcAttr{
+		AmbientCaps: []uintptr{unix.CAP_NET_ADMIN},
+	}
+	return cmd, cancel
+}
+
 func main() {
 
 	config := &config{}
@@ -71,6 +81,7 @@ func main() {
 			fmt.Printf("bojack openvpn, run wild! go %d!\n", i)
 			runReference(config)
 		}
+		fmt.Println("run done, waiting for things to settle...")
 		time.Sleep(time.Second * 5)
 	}
 }

@@ -11,6 +11,10 @@ import (
 	"github.com/NordSecurity/gopenvpn/openvpn"
 )
 
+const (
+	TLS_TIMEOUT = 61
+)
+
 // runReference will run the openvpn reference implementation
 func runReference(config *config) {
 	var wg sync.WaitGroup
@@ -33,13 +37,16 @@ func runReference(config *config) {
 
 		log.Println("openvpn", vpnargs)
 
-		cmd := capCommand("openvpn", vpnargs...)
+		cmd, cancel := capCommandTimeout("openvpn", vpnargs...)
+		defer cancel()
 		out, err := cmd.Output()
 		if err != nil {
 			fmt.Println(string(out))
 			fmt.Println("Error:", err)
+			fmt.Println("openvpn command exited")
 			return
 		}
+		fmt.Println("openvpn command exited")
 	}()
 
 	// let's give some time to openvpn to start and wait for us?
@@ -67,16 +74,25 @@ func runReference(config *config) {
 
 	t := make(chan time.Time, 1)
 
-	go func(t chan time.Time) {
+	go func(chan time.Time) {
 		defer wg.Done()
 		wg.Add(1)
+		timeout := time.NewTimer(time.Second * TLS_TIMEOUT)
+
 		for {
 			select {
+			case <-timeout.C:
+				fmt.Println("tls timeout!")
+				t <- time.Now()
+				return
+
 			case ev := <-eventCh:
 				if ev == nil {
+					t <- time.Now()
 					return
 				}
 				repr := ev.String()
+				fmt.Println(repr)
 				switch strings.HasPrefix(repr, "LOG") {
 				case true:
 					logLine := ev.(*openvpn.LogEvent).Line()
@@ -93,9 +109,12 @@ func runReference(config *config) {
 	}(t)
 
 	wg.Wait()
+	fmt.Println("done waiting")
 
 	finished := <-t
 	elapsed := finished.Sub(start)
+
+	fmt.Println("elapsed:", elapsed)
 
 	result := result{
 		Time:    time.Now(),
