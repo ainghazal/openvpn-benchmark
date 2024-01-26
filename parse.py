@@ -7,8 +7,8 @@ from timelength import TimeLength
 d = open(sys.argv[1]).read()
 data = json.loads(d)
 
-d = open(sys.argv[2]).read()
-data = data + json.loads(d)
+#d = open(sys.argv[2]).read()
+#data = data + json.loads(d)
 
 
 def fix(data):
