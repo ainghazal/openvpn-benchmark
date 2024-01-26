@@ -23,6 +23,7 @@ type config struct {
 	count      int
 	file       string
 	debug      bool
+	netem      bool
 }
 
 type result struct {
@@ -60,6 +61,7 @@ func main() {
 	flag.StringVar(&config.iface, "iface", "eth0", "interface where to emulate network conditions")
 	flag.BoolVar(&config.disableDCO, "disable-dco", false, "disable dco module, if loaded (ref only)")
 	flag.IntVar(&config.loss, "loss", 0, "setup a specific packet loss % on the interface")
+	flag.BoolVar(&config.netem, "enable-netem", false, "enable netem module")
 	flag.StringVar(&config.file, "file", "results.json", "file where to append results")
 	flag.BoolVar(&config.debug, "debug", false, "print logs")
 	flag.Parse()
@@ -67,10 +69,12 @@ func main() {
 	log.Println("iface:", config.iface)
 	log.Println("file:", config.file)
 
-	maybeCleanupNetem(config)
+	if config.netem {
+		maybeCleanupNetem(config)
 
-	defer cleanupNetem(config)
-	setupLoss(config)
+		defer cleanupNetem(config)
+		setupLoss(config)
+	}
 
 	for i := 1; i < config.count+1; i++ {
 		switch config.flavor {

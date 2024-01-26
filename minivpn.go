@@ -32,10 +32,12 @@ func runMiniVPN(config *config) {
 
 		// Create a pipe to capture the command's stdout
 		stdout, err := cmd.StdoutPipe()
+
 		if err != nil {
 			fmt.Println("Error creating StdoutPipe:", err)
 			return
 		}
+		cmd.Stderr = cmd.Stdout
 
 		// Start the command
 		log.Println("start")
@@ -51,6 +53,9 @@ func runMiniVPN(config *config) {
 		go func() {
 			for scanner.Scan() {
 				line := scanner.Text()
+				if config.debug {
+					fmt.Println(line)
+				}
 
 				// Process the log line as needed
 				if strings.Contains(line, "initialization sequence completed") {
@@ -58,23 +63,6 @@ func runMiniVPN(config *config) {
 					wg.Done()
 					return
 				}
-
-				/*
-					if strings.HasPrefix(line, "Local") {
-						fmt.Println(line)
-						continue
-					}
-					if strings.HasPrefix(line, "Gateway") {
-						fmt.Println(line)
-						fmt.Println("done!")
-						if config.debug {
-							fmt.Printf("Stderr: %s\n", stderr.String())
-						}
-
-						wg.Done()
-						return
-					}
-				*/
 			}
 		}()
 
